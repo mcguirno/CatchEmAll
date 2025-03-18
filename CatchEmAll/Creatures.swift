@@ -11,7 +11,7 @@ import Foundation
 class Creatures {
     private struct Returned: Codable {
         var count: Int
-        var next: String
+        var next: String?
         var results: [Creature]
     }
     var urlString = "https://pokeapi.co/api/v2/pokemon/"
@@ -29,9 +29,11 @@ class Creatures {
                 print("ERROR: Could not decode returned JSON data")
                 return
             }
-            self.count = returned.count
-            self.urlString = returned.next
-            self.creaturesArray = returned.results
+            Task { @MainActor in
+                self.count = returned.count
+                self.urlString = returned.next ?? ""
+                self.creaturesArray = self.creaturesArray + returned.results
+            }
         } catch {
             print("ERROR: Could not get data from \(urlString)")
         }
